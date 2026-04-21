@@ -125,6 +125,18 @@ const TestRunner = () => {
           {currentQ.text}
         </h1>
 
+        {currentQ.mediaUrls && currentQ.mediaUrls.length > 0 && (
+          <div className="media-container" style={{ margin: '20px 0', display: 'flex', gap: '15px', flexWrap: 'wrap', justifyContent: 'center' }}>
+            {currentQ.mediaUrls.map((url, idx) => {
+              const isAudio = url.match(/\.(mp3|wav|ogg)$/i) || url.includes('audio');
+              if (isAudio) {
+                return <audio key={idx} controls src={url} style={{ width: '100%', maxWidth: '400px' }} />;
+              }
+              return <img key={idx} src={url} alt="Question Media" style={{ maxWidth: '100%', maxHeight: '300px', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }} />;
+            })}
+          </div>
+        )}
+
         <div className="options-container">
           {currentQ.type === 'scmcq' ? (
             currentQ.options?.map((opt) => {

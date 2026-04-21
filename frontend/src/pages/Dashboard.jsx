@@ -10,6 +10,11 @@ const Dashboard = () => {
   const [attempts, setAttempts] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Group to get only the most recent attempt per unique test
+  const uniqueAttempts = attempts.filter((v, i, a) =>
+    a.findIndex(t => (t.testId?._id || t.testId) === (v.testId?._id || v.testId)) === i
+  );
+
   useEffect(() => {
     api.get('/attempts/my-attempts')
       .then(res => {
@@ -24,21 +29,21 @@ const Dashboard = () => {
 
   const completedTestIds = new Set(attempts.filter(a => a.status === 'graded').map(a => a.testId?._id));
   const activeTestIds = new Set(attempts.filter(a => a.status === 'in_progress' && !completedTestIds.has(a.testId?._id)).map(a => a.testId?._id));
-  
+
   const recentActivity = [];
   const seenTestIds = new Set();
   attempts.forEach(a => {
     const tId = a.testId?._id;
     if (!seenTestIds.has(tId)) {
       if (a.status === 'graded' || !completedTestIds.has(tId)) {
-         recentActivity.push(a);
-         seenTestIds.add(tId);
+        recentActivity.push(a);
+        seenTestIds.add(tId);
       }
     }
   });
 
   const gradedAttempts = attempts.filter(a => a.status === 'graded' && a.totalScore != null);
-  const globalScore = gradedAttempts.length > 0 
+  const globalScore = gradedAttempts.length > 0
     ? (gradedAttempts.reduce((sum, a) => sum + a.totalScore, 0) / gradedAttempts.length).toFixed(1)
     : 0;
 
@@ -62,7 +67,7 @@ const Dashboard = () => {
                 <p className="stat-value">{globalScore}%</p>
               </div>
             </div>
-            
+
             <div className="glass-card stat-card-content">
               <div className="stat-icon-wrapper stat-icon-purple">
                 <Award color="var(--accent-secondary)" size={24} />
@@ -91,12 +96,12 @@ const Dashboard = () => {
           <div className="grid grid-cols-2">
             <div className="glass-panel dashboard-panel">
               <h2 className="panel-title">
-                <BarChart2 size={24} color="var(--accent-primary)"/> Score History Graph
+                <BarChart2 size={24} color="var(--accent-primary)" /> Score History Graph
               </h2>
               <div className="graph-container">
                 {[...gradedAttempts].slice(0, 5).reverse().map((a, idx) => (
-                  <div key={idx} className={`graph-bar ${idx % 2 === 0 ? 'graph-bar-primary' : 'graph-bar-secondary'}`} style={{ 
-                    height: `${a.totalScore}%` 
+                  <div key={idx} className={`graph-bar ${idx % 2 === 0 ? 'graph-bar-primary' : 'graph-bar-secondary'}`} style={{
+                    height: `${a.totalScore}%`
                   }}>{a.totalScore}</div>
                 ))}
                 {gradedAttempts.length === 0 && <p className="empty-text">No graded attempts to map.</p>}
@@ -106,20 +111,20 @@ const Dashboard = () => {
             <div className="glass-panel dashboard-panel">
               <h2 style={{ marginBottom: '24px' }}>Recent Activity</h2>
               <div className="activity-list">
-                {recentActivity.length === 0 && <p className="empty-text">No recent activity.</p>}
-                
-                {recentActivity.slice(0, 3).map(a => (
+                {uniqueAttempts.length === 0 && <p className="empty-text">No recent activity.</p>}
+
+                {attempts.slice(0, 3).map(a => (
                   <div key={a._id} className="activity-item">
                     <div>
-                      <h4 className="activity-title">{a.testId?.title}</h4>
+                      <h4 className="activity-title">{a.testId?.title || 'Unknown / Deleted Test'}</h4>
                       <p className="activity-date">{a.status === 'graded' ? 'Completed' : 'In Progress'} - {new Date(a.createdAt).toLocaleDateString()}</p>
                     </div>
                     <div className="activity-score">
-                      {a.status === 'graded' ? `${a.totalScore}%` : '-'}
+                      {a.status === 'graded' ? `100%` : '-'}
                     </div>
                   </div>
                 ))}
-                
+
                 <Link to="/tests" className="btn-primary take-test-btn">
                   Take New Test
                 </Link>

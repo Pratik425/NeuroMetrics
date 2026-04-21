@@ -37,14 +37,53 @@ export const submitAttempt = async (req, res) => {
       return res.status(400).json({ message: 'Attempt already submitted' });
     }
 
-    // Mock grading logic for demonstration
-    // A real app would compare selectedOptionIds with Test options marked as isCorrect.
-    // We will just assign a random score to quickly satisfy the dynamic frontend.
-    const score = Math.floor(Math.random() * 100); 
+    // Grade the attempt based on exact question matches
+    const test = await Test.findById(attempt.testId);
+    let totalScore = 0;
+    let maxScorable = 0;
+
+    // Load available questions into memory
+    const qMap = {};
+    if (test && test.sections) {
+      test.sections.forEach(sec => {
+        sec.questions.forEach(q => {
+          qMap[q._id.toString()] = q;
+        });
+      });
+    }
+
+    // Evaluate
+    responses.forEach(res => {
+      if (!res.questionId) return;
+      const q = qMap[res.questionId.toString()];
+      if (q) {
+        maxScorable += q.maxScore || 1;
+        
+        if (q.type === 'scmcq' || q.type === 'mcmcq') {
+          // Compare options
+          const correctOptionIds = q.options.filter(o => o.isCorrect).map(o => o._id.toString());
+          const selected = res.selectedOptionIds || [];
+          const isCorrect = selected.length > 0 && 
+                            selected.every(id => correctOptionIds.includes(id.toString())) && 
+                            selected.length === correctOptionIds.length;
+          
+          if (isCorrect) totalScore += q.maxScore || 1;
+        } else {
+          // Textual validation
+          const userAns = typeof res.answerText === 'string' ? res.answerText.trim().toLowerCase() : '';
+          const correctAns = typeof q.ans === 'string' ? q.ans.trim().toLowerCase() : '';
+          if (correctAns && userAns === correctAns) {
+            totalScore += q.maxScore || 1;
+          }
+        }
+      }
+    });
+
+    const score = maxScorable > 0 ? Math.round((totalScore / maxScorable) * 100) : 0;
 
     attempt.responses = responses;
     attempt.submittedAt = new Date();
-    attempt.status = 'graded'; // Skipping manual grading phase
+    attempt.status = 'graded'; 
     attempt.totalScore = score;
 
     await attempt.save();

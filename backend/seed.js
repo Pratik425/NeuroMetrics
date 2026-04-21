@@ -68,6 +68,37 @@ const seedDB = async () => {
             ]
           }
         ]
+      },
+      {
+        title: 'Multimedia Sensory Test',
+        description: 'Test containing audio and image recognition tasks.',
+        duration: 1200,
+        tags: ['sensory', 'multimedia'],
+        difficultyLevel: 'medium',
+        sections: [
+          {
+            title: 'Visual & Auditory Processing',
+            orderIndex: 0,
+            questions: [
+              {
+                text: 'What animal is shown in the image?',
+                type: 'text',
+                mediaUrls: ['https://upload.wikimedia.org/wikipedia/commons/a/a3/June_odd-eyed-cat.jpg']
+              },
+              {
+                text: 'What object commonly makes this sound? (Type your answer)',
+                type: 'text',
+                mediaUrls: ['https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3']
+              },
+              {
+                text: 'Which musical instrument is prominently heard? (Select option)',
+                type: 'scmcq',
+                mediaUrls: ['https://assets.mixkit.co/active_storage/sfx/2281/2281-preview.mp3'],
+                options: [{text: 'Piano'}, {text: 'Guitar'}, {text: 'Violin'}, {text: 'Flute'}]
+              }
+            ]
+          }
+        ]
       }
     ];
 
