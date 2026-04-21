@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import TestLibrary from './pages/TestLibrary';
 import TestRunner from './pages/TestRunner';
 import TestFeedback from './pages/TestFeedback';
+import AdminDashboard from './pages/AdminDashboard';
 import './App.css';
 
 const PrivateRoute = ({ children }) => {
@@ -28,6 +29,7 @@ function App() {
             <Route path="/tests" element={<PrivateRoute><TestLibrary /></PrivateRoute>} />
             <Route path="/tests/:id" element={<PrivateRoute><TestRunner /></PrivateRoute>} />
             <Route path="/feedback/:testId" element={<PrivateRoute><TestFeedback /></PrivateRoute>} />
+            <Route path="/admin" element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
           </Routes>
         </main>
       </BrowserRouter>

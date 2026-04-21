@@ -104,3 +104,16 @@ export const getUserAttempts = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const getAllAttempts = async (req, res) => {
+  try {
+    const attempts = await Attempt.find({})
+      .populate('userId', 'name email')
+      .populate('testId', 'title tags difficultyLevel')
+      .sort({ createdAt: -1 });
+
+    res.json(attempts);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

@@ -14,9 +14,8 @@ const TestFeedback = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Mock or send genuine API Call
-      // await api.post('/reviews', { testId, rating, feedback });
-      alert('Thank you for your feedback! Your rank is updating...');
+      await api.post('/reviews', { testId, rating, feedback });
+      alert('Thank you for your feedback!');
       navigate('/');
     } catch (err) {
       console.error(err);

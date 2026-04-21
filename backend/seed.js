@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { Test } from './src/models/Test.js';
+import { User } from './src/models/User.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -103,6 +104,19 @@ const seedDB = async () => {
     ];
 
     await Test.insertMany(mockTests);
+    
+    // Automatically provision the Admin login credentials if they don't exist
+    const adminExists = await User.findOne({ email: 'admin@smriti.dev' });
+    if (!adminExists) {
+      await User.create({
+        name: 'Admin Smriti',
+        email: 'admin@smriti.dev',
+        password: 'password123',
+        type: 'admin'
+      });
+      console.log('Admin user seamlessly provisioned.');
+    }
+
     console.log('Database seeded with 3 tests (5 questions each).');
     process.exit(0);
   } catch (error) {

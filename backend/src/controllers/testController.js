@@ -43,3 +43,17 @@ export const getTestById = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const deleteTest = async (req, res) => {
+  try {
+    const test = await Test.findById(req.params.id);
+    if (!test) {
+      return res.status(404).json({ message: 'Test not found' });
+    }
+    await Test.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Test removed' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+

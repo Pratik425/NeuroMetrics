@@ -27,6 +27,9 @@ const Navbar = () => {
           <div className="navbar-links">
             <Link to="/" className="navbar-link">Dashboard</Link>
             <Link to="/tests" className="navbar-link">Tests</Link>
+            {user.type === 'admin' && (
+              <Link to="/admin" className="navbar-link" style={{ color: 'var(--accent-primary)', fontWeight: 600 }}>Admin Panel</Link>
+            )}
             <button onClick={handleLogout} className="btn-secondary navbar-logout-btn">
               <LogOut size={16} /> Logout
             </button>

@@ -9,6 +9,7 @@ import authRoutes from './routes/authRoutes.js';
 import testRoutes from './routes/testRoutes.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
 import attemptRoutes from './routes/attemptRoutes.js';
+import reviewRoutes from './routes/reviewRoutes.js';
 
 // Load env vars
 dotenv.config();
@@ -34,6 +35,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/tests', testRoutes);
 app.use('/api/v1/analytics', analyticsRoutes);
 app.use('/api/v1/attempts', attemptRoutes);
+app.use('/api/v1/reviews', reviewRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to NeuroMetrics API API' });
