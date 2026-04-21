@@ -111,9 +111,9 @@ const Dashboard = () => {
             <div className="glass-panel dashboard-panel">
               <h2 style={{ marginBottom: '24px' }}>Recent Activity</h2>
               <div className="activity-list">
-                {uniqueAttempts.length === 0 && <p className="empty-text">No recent activity.</p>}
+                {recentActivity.length === 0 && <p className="empty-text">No recent activity.</p>}
 
-                {attempts.slice(0, 3).map(a => (
+                {recentActivity.slice(0, 3).map(a => (
                   <div key={a._id} className="activity-item">
                     <div>
                       <h4 className="activity-title">{a.testId?.title || 'Unknown / Deleted Test'}</h4>
