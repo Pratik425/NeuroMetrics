@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import { useTranslation } from '../context/LanguageContext';
 import { Link } from 'react-router-dom';
 import { Activity, BarChart2, Award, Clock } from 'lucide-react';
 import api from '../utils/api';
@@ -7,7 +8,9 @@ import './Dashboard.css';
 
 const Dashboard = () => {
   const { user } = useContext(AuthContext);
+  const { t } = useTranslation();
   const [attempts, setAttempts] = useState([]);
+  const [totalTestsCount, setTotalTestsCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   // Group to get only the most recent attempt per unique test
@@ -16,19 +19,28 @@ const Dashboard = () => {
   );
 
   useEffect(() => {
-    api.get('/attempts/my-attempts')
-      .then(res => {
-        setAttempts(res.data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error(err);
-        setLoading(false);
-      });
+    Promise.all([
+      api.get('/attempts/my-attempts'),
+      api.get('/tests')
+    ]).then(([attRes, testRes]) => {
+      setAttempts(attRes.data);
+      setTotalTestsCount(testRes.data.length);
+      setLoading(false);
+    }).catch(err => {
+      console.error(err);
+      setLoading(false);
+    });
   }, []);
 
   const completedTestIds = new Set(attempts.filter(a => a.status === 'graded').map(a => a.testId?._id));
-  const activeTestIds = new Set(attempts.filter(a => a.status === 'in_progress' && !completedTestIds.has(a.testId?._id)).map(a => a.testId?._id));
+  
+  const todayStr = new Date().toDateString();
+  const testsCompletedToday = new Set(
+    attempts
+      .filter(a => a.status === 'graded' && new Date(a.createdAt).toDateString() === todayStr)
+      .map(a => a.testId?._id)
+  );
+  const activeTestsCount = Math.max(0, totalTestsCount - testsCompletedToday.size);
 
   const recentActivity = [];
   const seenTestIds = new Set();
@@ -50,11 +62,11 @@ const Dashboard = () => {
   return (
     <div>
       <div className="dashboard-header">
-        <h1 className="dashboard-title">Welcome back, <span className="dashboard-user-name">{user?.name}</span></h1>
-        <p>Here is your dynamic cognitive performance overview based on your history.</p>
+        <h1 className="dashboard-title">{t('welcomeBack')}, <span className="dashboard-user-name">{user?.name}</span></h1>
+        <p>{t('dashboardSubtitle')}</p>
       </div>
 
-      {loading ? <p>Loading stats...</p> : (
+      {loading ? <p>{t('loadingStats')}</p> : (
         <>
           {/* Stats Grid */}
           <div className="grid grid-cols-3 dashboard-stats-grid">
@@ -63,7 +75,7 @@ const Dashboard = () => {
                 <Activity color="var(--accent-primary)" size={24} />
               </div>
               <div>
-                <h3 className="stat-title">Average Score</h3>
+                <h3 className="stat-title">{t('avgScore')}</h3>
                 <p className="stat-value">{globalScore}%</p>
               </div>
             </div>
@@ -73,7 +85,7 @@ const Dashboard = () => {
                 <Award color="var(--accent-secondary)" size={24} />
               </div>
               <div>
-                <h3 className="stat-title">Tests Completed</h3>
+                <h3 className="stat-title">{t('testsCompleted')}</h3>
                 <p className="stat-value">
                   {gradedAttempts.length}
                 </p>
@@ -85,9 +97,9 @@ const Dashboard = () => {
                 <Clock color="#38BDF8" size={24} />
               </div>
               <div>
-                <h3 className="stat-title">Active Tests</h3>
+                <h3 className="stat-title">{t('activeTests')}</h3>
                 <p className="stat-value">
-                  {activeTestIds.size}
+                  {activeTestsCount}
                 </p>
               </div>
             </div>
@@ -96,7 +108,7 @@ const Dashboard = () => {
           <div className="grid grid-cols-2">
             <div className="glass-panel dashboard-panel">
               <h2 className="panel-title">
-                <BarChart2 size={24} color="var(--accent-primary)" /> Score History Graph
+                <BarChart2 size={24} color="var(--accent-primary)" /> {t('scoreHistoryGraph')}
               </h2>
               <div className="graph-container">
                 {[...gradedAttempts].slice(0, 5).reverse().map((a, idx) => (
@@ -104,20 +116,20 @@ const Dashboard = () => {
                     height: `${a.totalScore}%`
                   }}>{a.totalScore}</div>
                 ))}
-                {gradedAttempts.length === 0 && <p className="empty-text">No graded attempts to map.</p>}
+                {gradedAttempts.length === 0 && <p className="empty-text">{t('noGradedAttempts')}</p>}
               </div>
             </div>
 
             <div className="glass-panel dashboard-panel">
-              <h2 style={{ marginBottom: '24px' }}>Recent Activity</h2>
+              <h2 style={{ marginBottom: '24px' }}>{t('recentActivity')}</h2>
               <div className="activity-list">
-                {recentActivity.length === 0 && <p className="empty-text">No recent activity.</p>}
+                {recentActivity.length === 0 && <p className="empty-text">{t('noRecentActivity')}</p>}
 
                 {recentActivity.slice(0, 3).map(a => (
                   <div key={a._id} className="activity-item">
                     <div>
-                      <h4 className="activity-title">{a.testId?.title || 'Unknown / Deleted Test'}</h4>
-                      <p className="activity-date">{a.status === 'graded' ? 'Completed' : 'In Progress'} - {new Date(a.createdAt).toLocaleDateString()}</p>
+                      <h4 className="activity-title">{a.testId?.title || t('unknownTest')}</h4>
+                      <p className="activity-date">{a.status === 'graded' ? t('completed') : t('inProgress')} - {new Date(a.createdAt).toLocaleDateString()}</p>
                     </div>
                     <div className="activity-score">
                       {a.status === 'graded' ? `100%` : '-'}
@@ -126,7 +138,7 @@ const Dashboard = () => {
                 ))}
 
                 <Link to="/tests" className="btn-primary take-test-btn">
-                  Take New Test
+                  {t('takeNewTest')}
                 </Link>
               </div>
             </div>

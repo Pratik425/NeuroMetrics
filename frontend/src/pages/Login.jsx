@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { useTranslation } from '../context/LanguageContext';
 import './Login.css';
 
 const Login = () => {
@@ -9,6 +10,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const { login, register } = useContext(AuthContext);
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -21,16 +23,16 @@ const Login = () => {
       }
       navigate('/');
     } catch (error) {
-      alert('Authentication failed!');
+      alert(t('authFailed'));
     }
   };
 
   return (
     <div className="login-container">
       <div className="glass-panel login-panel">
-        <h2 className="login-title">{isLogin ? 'Welcome Back' : 'Create Account'}</h2>
+        <h2 className="login-title">{isLogin ? t('welcomeBackLogin') : t('createAccount')}</h2>
         <p className="login-subtitle">
-          {isLogin ? 'Enter your details to access your dashboard' : 'Join NeuroMetrics today'}
+          {isLogin ? t('loginSubtitle') : t('joinToday')}
         </p>
         
         <form onSubmit={handleSubmit} className="login-form">
@@ -38,7 +40,7 @@ const Login = () => {
             <input 
               type="text" 
               className="glass-input" 
-              placeholder="Full Name" 
+              placeholder={t('fullName')}
               value={name} 
               onChange={e => setName(e.target.value)} 
               required
@@ -47,7 +49,7 @@ const Login = () => {
           <input 
             type="email" 
             className="glass-input" 
-            placeholder="Email Address" 
+            placeholder={t('emailAddr')}
             value={email} 
             onChange={e => setEmail(e.target.value)} 
             required
@@ -55,23 +57,23 @@ const Login = () => {
           <input 
             type="password" 
             className="glass-input" 
-            placeholder="Password" 
+            placeholder={t('password')}
             value={password} 
             onChange={e => setPassword(e.target.value)} 
             required
           />
           <button type="submit" className="btn-primary login-submit-btn">
-            {isLogin ? 'Sign In' : 'Sign Up'}
+            {isLogin ? t('signIn') : t('signUp')}
           </button>
         </form>
 
         <p className="login-footer-text">
-          {isLogin ? "Don't have an account? " : "Already have an account? "}
+          {isLogin ? t('dontHaveAccount') : t('alreadyHaveAccount')}
           <span 
             onClick={() => setIsLogin(!isLogin)} 
             className="login-toggle-link"
           >
-            {isLogin ? 'Register here' : 'Login here'}
+            {isLogin ? t('registerHere') : t('loginHere')}
           </span>
         </p>
       </div>

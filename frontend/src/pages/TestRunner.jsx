@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from '../context/LanguageContext';
 import { Timer, ArrowRight, CheckCircle } from 'lucide-react';
 import api from '../utils/api';
 import './TestRunner.css';
 
 const TestRunner = () => {
   const { id } = useParams();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [test, setTest] = useState(null);
   const [attemptId, setAttemptId] = useState(null);
@@ -36,7 +38,7 @@ const TestRunner = () => {
         
       } catch (err) {
         console.error(err);
-        alert('Could not load test.');
+        alert(t('errLoadTest'));
         navigate('/tests');
       }
     };
@@ -94,11 +96,11 @@ const TestRunner = () => {
       navigate(`/feedback/${id}`);
     } catch (err) {
       console.error(err);
-      alert('Error submitting attempt');
+      alert(t('errorSubmitAttempt'));
     }
   };
 
-  if (!test || questions.length === 0) return <div className="loading-engine">Loading Engine...</div>;
+  if (!test || questions.length === 0) return <div className="loading-engine">{t('loadingEngine')}</div>;
 
   const currentQ = questions[currentQuestion];
 
@@ -108,7 +110,7 @@ const TestRunner = () => {
       {/* Header & Progress */}
       <div className="runner-header">
         <div>
-          <h2 className="runner-title">Question {currentQuestion + 1} <span className="runner-progress-text">/ {questions.length}</span></h2>
+          <h2 className="runner-title">{t('question')} {currentQuestion + 1} <span className="runner-progress-text">/ {questions.length}</span></h2>
         </div>
         <div className="timer-badge">
           <Timer size={20} /> {formatTime(timeLeft)}
@@ -154,7 +156,7 @@ const TestRunner = () => {
             <textarea
               className="glass-input text-response-input"
               rows={6}
-              placeholder="Type your response here..."
+              placeholder={t('typeResponse')}
               value={responses[currentQ._id] || ''}
               onChange={(e) => handleOptionSelect(currentQ._id, e.target.value)}
             />
@@ -163,14 +165,14 @@ const TestRunner = () => {
 
         <div className="runner-actions">
           <button className="btn-secondary" style={{ visibility: currentQuestion === 0 ? 'hidden' : 'visible' }} onClick={() => setCurrentQuestion(prev => prev - 1)}>
-            Previous
+            {t('previous')}
           </button>
           
           <button className="btn-primary next-action-btn" onClick={handleNext}>
             {currentQuestion === questions.length - 1 ? (
-              <><CheckCircle size={20}/> Submit Attempt</>
+              <><CheckCircle size={20}/> {t('submitAttempt')}</>
             ) : (
-              <>Next <ArrowRight size={20}/></>
+              <>{t('next')} <ArrowRight size={20}/></>
             )}
           </button>
         </div>

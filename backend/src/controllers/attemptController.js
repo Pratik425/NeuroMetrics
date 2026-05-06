@@ -72,7 +72,7 @@ export const submitAttempt = async (req, res) => {
           // Textual validation
           const userAns = typeof res.answerText === 'string' ? res.answerText.trim().toLowerCase() : '';
           const correctAns = typeof q.ans === 'string' ? q.ans.trim().toLowerCase() : '';
-          if (correctAns && userAns === correctAns) {
+          if (correctAns && userAns.includes(correctAns)) {
             totalScore += q.maxScore || 1;
           }
         }

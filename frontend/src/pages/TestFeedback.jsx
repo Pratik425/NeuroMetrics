@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from '../context/LanguageContext';
 import { Star, Send } from 'lucide-react';
 import api from '../utils/api';
 import './TestFeedback.css';
 
 const TestFeedback = () => {
   const { testId } = useParams();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
@@ -15,10 +17,12 @@ const TestFeedback = () => {
     e.preventDefault();
     try {
       await api.post('/reviews', { testId, rating, feedback });
-      alert('Thank you for your feedback!');
+      alert(t('thankYouFeedback'));
       navigate('/');
     } catch (err) {
       console.error(err);
+      alert(err.response?.data?.message || t('errOccurred'));
+      navigate('/');
     }
   };
 
@@ -30,9 +34,9 @@ const TestFeedback = () => {
           <Star color="var(--accent-primary)" size={48} />
         </div>
         
-        <h2 className="feedback-title">Test Completed!</h2>
+        <h2 className="feedback-title">{t('testCompleted')}</h2>
         <p className="feedback-subtitle">
-          How would you rate the quality and difficulty of this cognitive assessment?
+          {t('feedbackSubtitle')}
         </p>
 
         <form onSubmit={handleSubmit}>
@@ -62,13 +66,13 @@ const TestFeedback = () => {
           <textarea
             className="glass-input feedback-textarea"
             rows="4"
-            placeholder="Any additional feedback? (Optional)"
+            placeholder={t('additionalFeedback')}
             value={feedback}
             onChange={(e) => setFeedback(e.target.value)}
           ></textarea>
 
           <button type="submit" className="btn-primary submit-feedback-btn" disabled={rating === 0}>
-            <Send size={20} /> Submit Feedback
+            <Send size={20} /> {t('submitFeedback')}
           </button>
         </form>
 
